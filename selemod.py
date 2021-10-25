@@ -487,12 +487,13 @@ class Sht31:
         bus_number: 
         """
         self.bus = SMBus(bus_number)
+        sleep(1) #short delay so that i2c can settle
         self.address = address
         self.bus.write_byte_data(self.address, 0x23, 0x34)
 
     def tempChanger(self, msb, lsb):
         mlsb = ((msb << 8) | lsb)
-        return 100 * int(str(mlsb), 10) / (pow(2, 16) - 1)
+        return -45 + 175 * int(str(mlsb), 10) / (pow(2, 16) -1)
 
     def humidChanger(self, msb, lsb):
         mlsb = ((msb << 8) | lsb)
@@ -504,6 +505,7 @@ class Sht31:
               True  -> return dictionary with data and its name
         """
         self.bus.write_byte_data(self.address, 0xE0, 0x00)
+        sleep(0.5)
         data_raw = self.bus.read_i2c_block_data(self.address, 0x00, 6)
         data = self.tempChanger(data_raw[0], data_raw[1]), self.humidChanger(data_raw[3], data_raw[4])
         
