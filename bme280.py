@@ -16,4 +16,4 @@ while(c<total_num):
     print('temp : %.4f' % temp)
     print('humid : %.4f' % humid)
     c+=1
-    time.sleep(1)
+    # time.sleep(1)
