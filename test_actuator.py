@@ -2,11 +2,21 @@ import selemod
 import pigpio
 import test_ec2
 
-actu = selemod.Actuator(pin_esc=12, pin_servo_1=8, pin_servo_2=7, 
-                        freq_esc=50, freq_servo=70, brakeon_duty=13.3, 
-                        brakeoff_duty=7, throttle_a0=7.5555, throttle_a1=0.027
-                        )
+pin_esc = 12
+pin_servo_1 = 18
+pin_servo_2 = 24 
+freq_esc = 50 
+freq_servo = 50
+brakeon_duty = 8.72 
+brakeoff_duty = 4.85 
 
+pin_ec2_top = 16 
+pin_ec2_bottom = 20
+
+actu = selemod.Actuator(pin_esc=pin_esc, pin_servo_1=pin_servo_1, 
+                        pin_servo_2=pin_servo_2, freq_esc=freq_esc, 
+                        freq_servo=freq_servo, brakeon_duty=brakeon_duty, 
+                        brakeoff_duty=brakeoff_duty)
 
 #initial setup of esc
 actu.test_esc()
