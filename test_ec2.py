@@ -4,26 +4,24 @@ import time
 #このプログラムの起動は時限式にする
 # もしくは、クライマーの高度が上端のダンパー付近に来た時に、起動する
 
-GPIO.setmode(GPIO.BCM)
+# GPIO.setmode(GPIO.BCM)
 
-pin_ec2_top = 16 
-pin_ec2_bottom = 20
+# pin_ec2_top = 16 
+# pin_ec2_bottom = 20
 
 
 class EC2:
-    def __init__(self, pin_ec2_top, pin_ec2_bottom, esc, ser): 
+    def __init__(self, pin_ec2_top, pin_ec2_bottom, actu): 
         """
         Argument
         ------------------------------------------
         pin_ec2top_ : ec2 corrector gpio
         pin_ec2_bottom : bottom ec2 corrector gpio 
-        esc : esc instance (GPIO.PWM)
-        ser : servo instance (GPIO.PWM)
+        actu : actuator instance 
         """
         self.pin_ec2_top = pin_ec2_top 
         self.pin_ec2_bottom = pin_ec2_bottom 
-        self.esc = esc 
-        self.ser = ser 
+        self.actu = actu 
         GPIO.setup(pin_ec2_top, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(pin_ec2_bottom, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     
@@ -32,9 +30,9 @@ class EC2:
 
         if GPIO.input(self.pin_ec2_top): 
             print("Top Switch ON")
-            ## cut off pwm signal here ##
-            self.esc.stop()
-            self.ser.stop()
+            ## cut off pwm signal & turn on brake ##
+            self.actu.esc.stop()
+            self.actu.ser.brakeon()
             print("cutting off pwm and servo signal")
             time.sleep(1)
         else: 
@@ -46,8 +44,8 @@ class EC2:
         if GPIO.input(self.pin_ec2_bottom): 
             print("Bottom Switch ON")
             ## cut off pwm signal here ##
-            self.esc.stop()
-            self.ser.stop()
+            self.actu.esc.stop()
+            self.actu.ser.brakeon()
             print("cutting off pwm and servo signal")
             time.sleep(1)
         else: 
