@@ -105,10 +105,10 @@ class Actuator:
     def calibrate_esc(self):
         """
         ESC needs to calibrate when we connect transmitter to ESC for the first time.
-        It uses gpipo library.
+        It uses pigpio library.
         """ 
 
-        max_pulse = 1970
+        max_pulse = 1600
         min_pulse = 1050
         # min_pulse_candit = [1800-10*i for i in range(80)]
         # rev_max_pulse =970 
@@ -317,11 +317,14 @@ class Actuator:
         del self.pin_esc
         del self.pin_servo_1 
         del self.pin_servo_2
-        del self.throttle_a0
-        del self.throttle_a1
-        del self.constup_throttle
         del self.brakeon_duty
         del self.brakeoff_duty
+        if not self.throttle_a0 == None: 
+            del self.throttle_a0
+        if not self.throttle_a1 == None: 
+            del self.throttle_a1
+        if not self.constup_throttle == None: 
+            del self.constup_throttle
         self.new_duty(0)     
         self.brakeon()
         self.esc.stop()
