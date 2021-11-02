@@ -2,7 +2,6 @@ import selemod
 import time 
 
 bme = selemod.Bme280(0x76)
-#sht = selemod.Sht31(0x45)
 
 # bme280 
 c = 0
