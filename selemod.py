@@ -31,6 +31,8 @@ class Actuator:
 
         # setup properties
         self.pin_esc = pin_esc
+        self.freq_esc    = freq_esc
+        self.freq_servo  = freq_servo
         self.pin_servo_1 = pin_servo_1
         self.pin_servo_2 = pin_servo_2
 
@@ -39,6 +41,16 @@ class Actuator:
         self.constup_throttle = constup_throttle
         self.brakeon_duty = brakeon_duty
         self.brakeoff_duty = brakeoff_duty
+        self.decrease_rate = 0.2
+
+        self.max_pulsewidth = 1970
+        self.min_pulsewidth = 1030
+        self.mid_pulsewidth = 1500
+        pulseperiod = 1/self.freq_esc
+        self.max_duty = self.max_pulsewidth / 10**6 / pulseperiod * 100
+        self.min_duty = self.min_pulsewidth / 10**6 / pulseperiod * 100
+        self.mid_duty = self.mid_pulsewidth / 10**6 / pulseperiod * 100
+
 
         """
         self.tune_const_speed = None
@@ -58,6 +70,34 @@ class Actuator:
         self.esc.start(0)
         self.ser_1.start(self.brakeon_duty)
         self.ser_2.start(self.brakeon_duty)
+        #pig.pi().set_PWM_frequency(self.pin_esc, self.freq_esc)
+        pig.pi().set_PWM_range(self.pin_esc, 100)
+
+    def calibrate_esc(self):
+        """
+        ESC needs to calibrate when we connect transmitter to ESC for the first time.
+        It uses gpipo library.
+        """ 
+
+        print("初期化します。バッテリーを外してください。")
+        
+
+        self.esc.ChangeDutyCycle(self.max_duty)
+        print("\nsetting esc max pulse\n")
+        print("Maximum duty ratio: %.1f\n" %self.max_duty)
+
+        print("バッテリーを接続して、ビーと鳴ったらEnterを押してください。")
+        inp = input()
+        if inp == '':
+            self.esc.ChangeDutyCycle(self.min_duty)
+            print("Minimum duty ratio: %.1f\n" %self.min_duty)
+
+            print("Is the motor silent? y/n")
+            yesorno = input()
+            if yesorno == 'y':
+                print("Calibration has completed.")
+                sleep(1)
+
 
     def test_esc(self):
         """
@@ -68,12 +108,15 @@ class Actuator:
         so you had better make a record of the throttle data corresponded to the duty.
         you can use the throttle data and culculate the duty-throttle relation as linear-relation model.
         """
-        duty_initial = 5.0      #starting to rotate at duty ratio 7.5 because intermediate point pulse width is 1.5msec
+ 
+        duty_initial = self.min_duty      #starting to rotate at duty ratio 7.5 because intermediate point pulse width is 1.5msec
         duty_step = 0.5
-        upper_limit = 9.5
+        upper_limit = 0.9*self.max_duty
+
         duty_count = round((upper_limit-duty_initial)/duty_step)
         print("duty:", duty_initial)
-        self.esc.ChangeDutyCycle(duty_initial)
+        self.esc.start(duty_initial)
+
 
         print("Is the motor silent? y/n")
         yesorno = input()
@@ -81,19 +124,26 @@ class Actuator:
             print("Setting has completed. Start? y/n")
             yesorno = input()
 
-            if yesorno == 'y':    
-                for i in range(0, duty_count):
-                    duty = i * duty_step  + duty_initial
-                    print("duty:", duty)
-                    self.esc.ChangeDutyCycle(duty)
-                    sleep(1)
-                
-                for i in range(0, duty_count):
-                    duty = duty -i* duty_step
+            if yesorno == 'y': 
+                try:
+                    #for i in range(0, duty_count):
+                    #    duty = i * duty_step  + duty_initial
+                    #    print("duty:", duty)
+                    #    self.esc.ChangeDutyCycle(duty)
+                    #    sleep(1)
+                    #
+                    duty = 7.1
                     print("duty:", duty)
                     self.esc.ChangeDutyCycle(duty)
                     sleep(15)
-                self.esc.stop()
+                    self.stop_esc(duty)
+                    print("This test has ended.")
+
+                except KeyboardInterrupt:
+                    print("Operation aborted. Duty ratio start decreasing.")
+                    self.stop_esc(duty)
+                    print("Motor has stopped.")
+
             else :
                print("end")
                return
@@ -102,58 +152,17 @@ class Actuator:
             print("Configuration error.")
             return
 
-    def calibrate_esc(self):
+    def stop_esc(self,duty):
         """
-        ESC needs to calibrate when we connect transmitter to ESC for the first time.
-        It uses pigpio library.
+        ESC should be slow gradualy.
         """ 
+        delta = self.decrease_rate*(duty-self.min_duty)
+        for i in range(round(1/self.decrease_rate)):
+            duty = duty-delta
+            print("Duty:", duty)
+            self.esc.ChangeDutyCycle(duty)
+            sleep(3)
 
-        max_pulse = 1600
-        min_pulse = 1050
-        # min_pulse_candit = [1800-10*i for i in range(80)]
-        # rev_max_pulse =970 
-
-        print("初期化します。バッテリーを外してください。")
-        
-
-        pi = pigpio.pi()
-        pi.set_servo_pulsewidth(self.pin_esc, max_pulse)
-        print("\nsetting esc max pulse\n")
-
-        print("バッテリーを接続して、ビービーと鳴ったらEnterを押してください。")
-        inp = input()
-        if inp == '':
-            # pi.set_servo_pulsewidth(self.pin_esc, min_pulse)
-            pi.set_servo_pulsewidth(self.pin_esc, min_pulse)
-            print("pulse value: %d\n" %min_pulse)
-            sleep(1)
-
-        print("\"stop\"")
-        print("\"u\" to up speed")
-        print("\"d\" to down speed")
-        speed = 1300 #initial speed should be above 60% throttle
-        print("speed = %d" % speed)
-        
-        #intial 
-        while True:    
-            pi.set_servo_pulsewidth(self.pin_esc, speed)
-            print("\ninput esc mode: \n")
-            inp = input()
-            if inp == "d":
-                speed -= 100
-                print("speed = %d" % speed)
-            elif inp == "u":    
-                speed += 100    # incrementing the speed like hell
-                print("speed = %d" % speed)
-            elif inp == "stop":
-                speed = 0
-                pi.set_servo_pulsewidth(self.pin_esc, 0)
-                break
-            else:
-                print("stop or u or d!")
-
-        # End process
-            pi.stop()
 
     @staticmethod
     def LSM(x, y)-> "return a tuple of the coefficients (a0, a1)":
@@ -317,14 +326,11 @@ class Actuator:
         del self.pin_esc
         del self.pin_servo_1 
         del self.pin_servo_2
+        del self.throttle_a0
+        del self.throttle_a1
+        del self.constup_throttle
         del self.brakeon_duty
         del self.brakeoff_duty
-        if not self.throttle_a0 == None: 
-            del self.throttle_a0
-        if not self.throttle_a1 == None: 
-            del self.throttle_a1
-        if not self.constup_throttle == None: 
-            del self.constup_throttle
         self.new_duty(0)     
         self.brakeon()
         self.esc.stop()
@@ -490,13 +496,12 @@ class Sht31:
         bus_number: 
         """
         self.bus = SMBus(bus_number)
-        sleep(1) #short delay so that i2c can settle
         self.address = address
         self.bus.write_byte_data(self.address, 0x23, 0x34)
 
     def tempChanger(self, msb, lsb):
         mlsb = ((msb << 8) | lsb)
-        return -45 + 175 * int(str(mlsb), 10) / (pow(2, 16) -1)
+        return 100 * int(str(mlsb), 10) / (pow(2, 16) - 1)
 
     def humidChanger(self, msb, lsb):
         mlsb = ((msb << 8) | lsb)
@@ -508,7 +513,6 @@ class Sht31:
               True  -> return dictionary with data and its name
         """
         self.bus.write_byte_data(self.address, 0xE0, 0x00)
-        sleep(0.5)
         data_raw = self.bus.read_i2c_block_data(self.address, 0x00, 6)
         data = self.tempChanger(data_raw[0], data_raw[1]), self.humidChanger(data_raw[3], data_raw[4])
         
