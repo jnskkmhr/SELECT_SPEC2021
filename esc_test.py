@@ -12,8 +12,8 @@ freq_esc = 50
 freq_servo = 50
 brakeon_duty = 8.72 
 brakeoff_duty = 4.85
-#throttle_a0 = 
-#throttle_a1 = 
+throttle_a0 = 5.15
+throttle_a1 = 0.047
 
 pin_ec2_top = 16 
 pin_ec2_bottom = 20
@@ -21,7 +21,8 @@ pin_ec2_bottom = 20
 actu = selemod.Actuator(pin_esc=pin_esc, pin_servo_1=pin_servo_1, 
                         pin_servo_2=pin_servo_2, freq_esc=freq_esc, 
                         freq_servo=freq_servo, brakeon_duty=brakeon_duty, 
-                        brakeoff_duty=brakeoff_duty)
+                        brakeoff_duty=brakeoff_duty,
+                        throttle_a0=throttle_a0, throttle_a1=throttle_a1)
 
 # initial setup of esc
 print("Have you calibrated the motor? (y/n)")
@@ -30,16 +31,40 @@ if yesorno == 'n':
     print("Start caliberation.")
     actu.calibrate_esc()
     print("Actuate motor. y/n")
-    if input() == 'y':
-        actu.test_esc()
-    if input() == 'n':
+    yesorno = input()
+    if yesorno == 'y':
+        try:
+            #print("What throttle? Please type integer from 0 to 100.s")
+            throttle = 60
+            print("throttle_a0:", throttle_a0)
+            print("throttle_a1:", throttle_a1)
+            print("throttle:", throttle)
+            duty = throttle_a0 + throttle_a1 * throttle
+            actu.esc.start(duty)
+        except KeyboardInterrupt:
+            print("Operation aborted. Duty ratio start decreasing.")
+            actu.stop_esc(duty)
+            print("Motor has stopped.")
+    if yesorno == 'n':
         print("test aborted")
 
 elif yesorno == 'y':
     print("Actuate motor. y/n")
-    if input() == 'y':
-        actu.test_esc()
-    if input() == 'n':
+    yesorno = input()
+    if yesorno == 'y':
+        try:
+            #print("What throttle? Please type integer from 0 to 100.s")
+            throttle = 60
+            print("throttle_a0:", throttle_a0)
+            print("throttle_a1:", throttle_a1)
+            print("throttle:", throttle)
+            duty = throttle_a0 + throttle_a1 * throttle
+            actu.esc.start(duty)
+        except KeyboardInterrupt:
+            print("Operation aborted. Duty ratio start decreasing.")
+            actu.stop_esc(duty)
+            print("Motor has stopped.")
+    if yesorno == 'n':
         print("test aborted")
 
 

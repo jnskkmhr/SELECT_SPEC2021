@@ -69,8 +69,6 @@ class Actuator:
         self.esc.start(0)
         self.ser_1.start(self.brakeon_duty)
         self.ser_2.start(self.brakeon_duty)
-        #pig.pi().set_PWM_frequency(self.pin_esc, self.freq_esc)
-        pig.pi().set_PWM_range(self.pin_esc, 100)
 
     def calibrate_esc(self):
         """
@@ -139,9 +137,9 @@ class Actuator:
                     print("This test has ended.")
 
                 except KeyboardInterrupt:
-                    print("Operation aborted. Duty ratio start decreasing.")
+                    print("Operation aborted.")
                     self.stop_esc(duty)
-                    print("Motor has stopped.")
+                    
 
             else :
                print("end")
@@ -155,12 +153,14 @@ class Actuator:
         """
         ESC should be slow gradualy.
         """ 
+        print("Duty ratio starts decreasing.")
         delta = self.decrease_rate*(duty-self.min_duty)
         for i in range(round(1/self.decrease_rate)):
             duty = duty-delta
             print("Duty:", duty)
             self.esc.ChangeDutyCycle(duty)
-            sleep(3)
+            sleep(1)
+        print("Motor has stopped.")
 
 
     @staticmethod
@@ -243,19 +243,7 @@ class Actuator:
         print("duty:", duty)
         self.esc.ChangeDutyCycle(duty)
         sleep(10)
-        for i in range(0, duty_count, 1):
-            duty = -i * duty_step  + duty
-            self.esc.ChangeDutyCycle(duty)
-            sleep(1)
-        self.esc.stop()
-
-
-
-        if duty < 0:
-            duty = 0
-        elif duty > 100:
-            duty = 100
-
+        self.stop_esc()
 
     def new_duty(self, duty:float):
         """

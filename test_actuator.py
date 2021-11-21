@@ -8,8 +8,8 @@ freq_esc = 50
 freq_servo = 50
 brakeon_duty = 8.72 
 brakeoff_duty = 4.85
-#throttle_a0 = 
-#throttle_a1 = 
+throttle_a0 = 5.15
+throttle_a1 = 0.047
 
 pin_ec2_top = 16 
 pin_ec2_bottom = 20

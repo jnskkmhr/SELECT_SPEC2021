@@ -1,4 +1,4 @@
-import Rpi.gpio as GPIO
+import RPi.GPIO as gpio
 import time
 
 #このプログラムの起動は時限式にする
