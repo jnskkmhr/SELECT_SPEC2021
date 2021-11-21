@@ -243,7 +243,7 @@ class Actuator:
         print("duty:", duty)
         self.esc.ChangeDutyCycle(duty)
         sleep(10)
-        self.stop_esc()
+        self.stop_esc(duty)
 
     def new_duty(self, duty:float):
         """

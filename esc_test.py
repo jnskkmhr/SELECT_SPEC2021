@@ -35,12 +35,12 @@ if yesorno == 'n':
     if yesorno == 'y':
         try:
             #print("What throttle? Please type integer from 0 to 100.s")
-            throttle = 60
+            throttle = float(60)
             print("throttle_a0:", throttle_a0)
             print("throttle_a1:", throttle_a1)
             print("throttle:", throttle)
             duty = throttle_a0 + throttle_a1 * throttle
-            actu.esc.start(duty)
+            actu.new_throttle(throttle)
         except KeyboardInterrupt:
             print("Operation aborted. Duty ratio start decreasing.")
             actu.stop_esc(duty)
@@ -54,12 +54,13 @@ elif yesorno == 'y':
     if yesorno == 'y':
         try:
             #print("What throttle? Please type integer from 0 to 100.s")
-            throttle = 60
+            throttle = float(60)
             print("throttle_a0:", throttle_a0)
             print("throttle_a1:", throttle_a1)
             print("throttle:", throttle)
             duty = throttle_a0 + throttle_a1 * throttle
-            actu.esc.start(duty)
+            actu.new_throttle(throttle)
+
         except KeyboardInterrupt:
             print("Operation aborted. Duty ratio start decreasing.")
             actu.stop_esc(duty)
