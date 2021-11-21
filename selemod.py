@@ -5,7 +5,6 @@ import csv
 import math
 import datetime
 import sys
-import pigpio
 
 
 class Actuator:
