@@ -66,18 +66,18 @@ class Actuator:
 
     def calibrate_esc(self):
         """
-        ESC needs to calibrate when we connect transmitter to ESC for the first time.
-        It uses gpipo library.
+        ESC needs calibration when connecting transmitter to ESC for the first time.
+        It uses pigpio library.
         """ 
 
-        print("初期化します。バッテリーを外してください。")
+        print("initializing esc, remove battery...")
         
 
         self.esc.ChangeDutyCycle(self.max_duty)
         print("\nsetting esc max pulse\n")
         print("Maximum duty ratio: %.1f\n" %self.max_duty)
 
-        print("バッテリーを接続して、ビーと鳴ったらEnterを押してください。")
+        print("connect battery. Press Enter after the beep。")
         inp = input()
         if inp == '':
             self.esc.ChangeDutyCycle(self.min_duty)
