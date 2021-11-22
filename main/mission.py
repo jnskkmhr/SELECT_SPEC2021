@@ -7,7 +7,7 @@ import time
 from math import pi 
 
 import selemod 
-from selemod import Actuator
+from selemod import Actuator, Bme280, Sht31
 from E2S import E2S
 from EM_switch import EM_SW
 
@@ -24,6 +24,11 @@ class Resilience:
         ---------------------------------------------------------------------------------
         set what's related to the mission (e.g. constants, class object, setup method etc)
         """
+
+        # mode of esc 
+        # 0 => elevation  1 => free fall 
+        self.mode = 0 
+
         # physical info about the climber 
         self.DISTANCE = DISTANCE
         self.REDUCE_RATE = 0.05 
@@ -36,8 +41,8 @@ class Resilience:
         self.freq_servo = 50 
         self.brakeon_duty = 8.72
         self.brakeoff_duty = 4.85 
-        self.throttle_a0 = 0.5 # duty vs throttle weight 
-        self.throttle_a1 = 0.4 
+        self.throttle_a0 = 5.15 # duty vs throttle weight 
+        self.throttle_a1 = 0.047 
         self.current_throttle = 90 
         self.target_throttle = 0 
 
@@ -58,7 +63,8 @@ class Resilience:
         self.pin_em_sw = 21 
 
         # encoder pin setup & count, pos
-        # these variable are crucial to the mission, so manage these as instance variable of class (do not use as an argument)
+        # these variable are crucial to the mission, so manage these as instance variable of class 
+        # (not using as an argument so to manage across method)
         self.counter = 0 
         self.pos = 0 
         
@@ -68,17 +74,18 @@ class Resilience:
                         brakeon_duty=brakeon_duty, brakeoff_duty=brakeoff_duty, 
                         throttle_a0=self.throttle_a0, throttle_a1=self.throttle_a1) #actuator(DC & servo motor)
         self.e2c = E2S(self.pin_e2s_top, self.pin_e2s_bottom) #E2S
-
         self.em_sw = EM_SW(self.pin_em_sw) #emergency switch 
+        self.bme280 = Bme280(0x76) #bme280 sensor
+        self.sht31 = Sht31(0x45) #sht31 sensor
 
         self.actu.calibrate_esc() #calibrate esc 
         self.actu.ser_1.brakeoff() #servo brake off b4 climbing 
 
-    def motor(self, e2c_flag, em_flag): 
+    def motor(self, e2s_flag, em_flag): 
         """
         Arguments
         -------------------------------------------------------------------
-        e2c_flag(tuple) : (top e2c flag, bottom e2c flag)
+        e2s_flag(tuple) : (top e2s flag, bottom e2s flag)
         em_flag(int) : binary flag(0/1) to notify if emergency switch is on 
 
         Usage
@@ -91,44 +98,62 @@ class Resilience:
         # the user can create new category
         # if so, add position domain like middle_lim1, middle_lim2, middle_lim3, ... 
         # throttle value of each domain is initialized in construction 
-        if self.lower_lim <= self.pos < self.middle_lim1: 
-            self.target_throttle = throttle1
-        elif self.middle_lim1 <= self.pos < self.middle_lim2: 
-            self.target_throttle = throttle2
-        elif self.middle_lim2 <= self.pos < self.upper_lim: 
-            self.target_throttle = throttle3
 
-        if self.current_throttle != self.target_throttle: #change throttle value only if current throttle and target throttle is different
-            self.actu.new_throttle(self.target_throttle)
-            self.current_throttle = self.target_throttle
+        if self.mode == 0: 
+            if self.lower_lim <= self.pos < self.middle_lim1: 
+                self.target_throttle = throttle1
+            elif self.middle_lim1 <= self.pos < self.middle_lim2: 
+                self.target_throttle = throttle2
+            elif self.middle_lim2 <= self.pos < self.upper_lim: 
+                self.target_throttle = throttle3
+
+            if self.current_throttle != self.target_throttle: #change throttle value only if current throttle and target throttle is different
+                self.actu.new_throttle(self.target_throttle)
+                self.current_throttle = self.target_throttle
+            
+            #### esc stop sequence ####
+            # if near goal, stop esc (this area is above safe zone, so immediately set throttle 0 once the climber reach this area)
+            if self.upper_lim <= self.pos: 
+                self.actu.stop_esc(self.current_throttle)
+                self.actu.ser_1.brakeon()
+                print("switching to heli-mode")
+                # cmd to switch to heli-mode 
+                self.mode = 1 
+
+            # E2S emergency stop 
+            e2s_0_flag, e2s_1_flag = e2s_flag
+            if e2s_0_flag == 0: 
+                self.actu.stop_esc(self.current_throttle)
+                self.actu.ser_1.brakeon()
+                self.mode = 1
+            elif e2s_1_flag == 0: 
+                self.actu.stop_esc(self.current_throttle)
+                self.actu.ser_1.brakeon()
+                self.mode = 1
+            else: 
+                pass 
+
+            # Emergency switch stop 
+            if em_flag == 0: 
+                self.actu.stop_esc(self.current_throttle)
+                self.actu.ser_1.brakeon()
+                sys.exit()
+            else: 
+                pass  
+
+        elif self.mode == 1: 
+            #swith to heli-mode every 5% of DISTANCE
+            if int(self.pos)%(self.DISTANCE*self.REDUCE_RATE) == 0: 
+                self.actu.stop_esc()
         
-        # if above, stop esc (this area is above safe zone, so immediately set throttle 0 once the climber reach this area)
-        if self.upper_lim <= self.pos: 
-            self.actu.stop_esc(self.current_throttle)
-            print("switching to heli-mode")
-            # cmd to switch to heli-mode 
-
-        # E2S emergency stop 
-        e2c_0_flag, e2c_1_flag = e2c_flag
-        if e2c_0_flag == 0: 
-            self.actu.stop_esc(self.current_throttle)
-        if e2c_1_flag == 0: 
-            self.actu.stop_esc(self.current_throttle)
-
-        # Emergency switch stop 
-        if em_flag == 0: 
-            self.actu.stop_esc(self.current_throttle)
-        else: 
-            pass  
-        
-    def brake(self, servo_flag):
-        """ 
-        sevo_flag(int) : binary integer flag whether turning on brake or not 
-        """
-        if servo_flag==0: 
-            self.actu.ser_1.brakeon()
-        elif servo_flag==1: 
-            self.actu.ser_2.brakeoff() 
+    # def brake(self, servo_flag):
+    #     """ 
+    #     sevo_flag(int) : binary integer flag whether turning on brake or not 
+    #     """
+    #     if servo_flag==0: 
+    #         self.actu.ser_1.brakeon()
+    #     elif servo_flag==1: 
+    #         self.actu.ser_1.brakeoff() 
 
     def _e2s(self): 
         e2s_0_flag = self.e2s.read_top()
@@ -145,8 +170,25 @@ class Resilience:
         # self.count = ... #update counter value here 
         self.pos = 2 * pi * self.RADIUS * self.count
 
+
+    def _bme280(self): 
+        press, temp, humid = self.bme280.read()
+        return (press, temp, humid)
+
+    def _sht31(self): 
+        temp, humid = sht.read()
+        return (temp, humid)
+
+
     def run(self):
         # this is main program 
-
-
-        
+        while True: 
+            try: 
+                em_falg = _em_sw()
+                e2s_flag = _e2s()
+                _encoder()
+                motor(e2s_flag, em_flag)
+            except KeyboardInterrupt: 
+                gpio.cleanup()
+                pigpio.cleanup()
+                sys.exit()
