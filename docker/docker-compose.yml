@@ -1,0 +1,10 @@
+version: "3"
+services:
+  dev: 
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/workspace
+    image: pi_env
+    container_name: select_2021
