@@ -48,12 +48,12 @@ class Resilience:
 
         # motor motion setup 
         self.lower_lim = 0 
-        self.middle_lim1 = 30 
-        self.middle_lim2 = 60 
+        self.middle_lim1 = 0.3 * self.DISTANCE
+        self.middle_lim2 = 0.5 * self.DISTANCE
         self.upper_lim = 0.85 * self.DISTANCE 
-        self.throttle1 = 90 
-        self.throttle2 = 80 
-        self.throttle3 = 60
+        self.throttle1 = 60 
+        self.throttle2 = 60 
+        self.throttle3 = 50
 
         # e2s pin setup 
         self.pin_e2s_top = 16 
@@ -77,8 +77,13 @@ class Resilience:
         self.em_sw = EM_SW(self.pin_em_sw) #emergency switch 
         self.bme280 = Bme280(0x76) #bme280 sensor
         self.sht31 = Sht31(0x45) #sht31 sensor
-
-        self.actu.calibrate_esc() #calibrate esc 
+        
+        print('calibrated esc "y" or "n"')
+        inp = input()
+        if inp = "y": 
+            pass 
+        elif inp == "n": 
+            self.actu.calibrate_esc() #calibrate esc 
         self.actu.ser_1.brakeoff() #servo brake off b4 climbing 
 
     def motor(self, e2s_flag, em_flag): 
@@ -101,11 +106,11 @@ class Resilience:
 
         if self.mode == 0: 
             if self.lower_lim <= self.pos < self.middle_lim1: 
-                self.target_throttle = throttle1
+                self.target_throttle = self.throttle1
             elif self.middle_lim1 <= self.pos < self.middle_lim2: 
-                self.target_throttle = throttle2
+                self.target_throttle = self.throttle2
             elif self.middle_lim2 <= self.pos < self.upper_lim: 
-                self.target_throttle = throttle3
+                self.target_throttle = self.throttle3
 
             if self.current_throttle != self.target_throttle: #change throttle value only if current throttle and target throttle is different
                 self.actu.new_throttle(self.target_throttle)
@@ -184,11 +189,13 @@ class Resilience:
         # this is main program 
         while True: 
             try: 
-                em_falg = _em_sw()
-                e2s_flag = _e2s()
-                _encoder()
-                motor(e2s_flag, em_flag)
+                em_falg = self._em_sw()
+                e2s_flag = self._e2s()
+                self._encoder()
+                self.(e2s_flag, em_flag)
             except KeyboardInterrupt: 
+                self.stop_esc(self.throttle)
+                self.brakeon()
                 gpio.cleanup()
                 pigpio.cleanup()
                 sys.exit()
