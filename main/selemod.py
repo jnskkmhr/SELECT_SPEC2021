@@ -29,7 +29,7 @@ class Actuator:
 
         # setup properties
         self.pin_esc = pin_esc
-        self.freq_esc    = freq_esc
+        self.freq_esc = freq_esc
         self.freq_servo  = freq_servo
         self.pin_servo_1 = pin_servo_1
         self.throttle_a0 = throttle_a0
@@ -143,11 +143,14 @@ class Actuator:
             print("Configuration error.")
             return
 
-    def stop_esc(self,duty):
+    def stop_esc(self,throttle):
         """
         ESC should be slow gradualy.
         """ 
         print("Duty ratio decreasing.")
+        # throttle = self.throttle_a0 + self.throttle_a1*duty 
+        # duty = (throttle - self.throttle_a0) / self.throttle_a1 
+        duty = (throttle - self.throttle_a0) / self.throttle_a1 
         delta = self.decrease_rate*(duty-self.min_duty)
         for i in range(round(1/self.decrease_rate)):
             duty = duty-delta
@@ -307,13 +310,14 @@ class Actuator:
         print('デストラクタの呼び出し')
         del self.pin_esc
         del self.pin_servo_1 
-        del self.pin_servo_2
+        # del self.pin_servo_2
         del self.throttle_a0
         del self.throttle_a1
         del self.constup_throttle
         del self.brakeon_duty
         del self.brakeoff_duty
-        self.new_duty(0)     
+        self.new_duty(0)
+        # self.stop_esc()     
         self.brakeon()
         self.esc.stop()
         self.ser_1.stop()
