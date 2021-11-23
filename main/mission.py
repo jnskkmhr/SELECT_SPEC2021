@@ -80,7 +80,7 @@ class Resilience:
         
         print('calibrated esc "y" or "n"')
         inp = input()
-        if inp = "y": 
+        if inp == "y": 
             pass 
         elif inp == "n": 
             self.actu.calibrate_esc() #calibrate esc 
