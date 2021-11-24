@@ -1,13 +1,15 @@
 # suppose test.py is at the same directory as selemod.py 
 
 #import dependencies 
-import selemod 
+import sys 
+sys.path.append('../main')
+from main import selemod 
 import test_ec2 
 
 # instantiate actuator class 
 pin_esc = 18
 pin_servo_1 = 23
-pin_servo_2 = 24
+# pin_servo_2 = 24
 freq_esc = 50 
 freq_servo = 50
 brakeon_duty = 8.72 
@@ -19,9 +21,8 @@ pin_ec2_top = 16
 pin_ec2_bottom = 20
 
 actu = selemod.Actuator(pin_esc=pin_esc, pin_servo_1=pin_servo_1, 
-                        pin_servo_2=pin_servo_2, freq_esc=freq_esc, 
-                        freq_servo=freq_servo, brakeon_duty=brakeon_duty, 
-                        brakeoff_duty=brakeoff_duty,
+                        freq_esc=freq_esc, freq_servo=freq_servo, 
+                        brakeon_duty=brakeon_duty, brakeoff_duty=brakeoff_duty,
                         throttle_a0=throttle_a0, throttle_a1=throttle_a1)
 
 # initial setup of esc
@@ -39,11 +40,12 @@ if yesorno == 'n':
             print("throttle_a0:", throttle_a0)
             print("throttle_a1:", throttle_a1)
             print("throttle:", throttle)
-            duty = throttle_a0 + throttle_a1 * throttle
+            # duty = throttle_a0 + throttle_a1 * throttle
             actu.new_throttle(throttle)
         except KeyboardInterrupt:
             print("Operation aborted. Duty ratio start decreasing.")
-            actu.stop_esc(duty)
+            # actu.stop_esc(duty)
+            actu.stop_esc(throttle)
             print("Motor has stopped.")
     if yesorno == 'n':
         print("test aborted")
@@ -58,12 +60,13 @@ elif yesorno == 'y':
             print("throttle_a0:", throttle_a0)
             print("throttle_a1:", throttle_a1)
             print("throttle:", throttle)
-            duty = throttle_a0 + throttle_a1 * throttle
+            # duty = throttle_a0 + throttle_a1 * throttle
             actu.new_throttle(throttle)
 
         except KeyboardInterrupt:
             print("Operation aborted. Duty ratio start decreasing.")
-            actu.stop_esc(duty)
+            # actu.stop_esc(duty)
+            actu.stop_esc(throttle)
             print("Motor has stopped.")
     if yesorno == 'n':
         print("test aborted")
