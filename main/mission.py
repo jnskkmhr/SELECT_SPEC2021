@@ -216,9 +216,9 @@ class Resilience:
         # this is main program 
         
         # process _encoder function in another thread
-        #enc_thread = threading.Thread(self._encoder)
-        #enc_thread.start()
-        #enc_thread.join()
+        enc_thread = threading.Thread(target=self._encoder)
+        enc_thread.start()
+        enc_thread.join()
 
         while True: 
             try: 
