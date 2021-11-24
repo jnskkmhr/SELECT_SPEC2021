@@ -1,4 +1,4 @@
-import RPi.gpio as gpio 
+import RPi.GPIO as GPIO
 import time 
 
 class EM_SW:
@@ -9,16 +9,13 @@ class EM_SW:
         pin_em_sw : emergency switch signal gpio 
         """
         self.pin_em_sw = pin_em_sw
-        GPIO.setup(pin_e2s_top, GPIO.IN) #switch is connected with pull-up resistor, so disable Raspberry pi's internal pull up 
+        GPIO.setup(self.pin_em_sw, GPIO.IN, GPIO.PUD_UP) #switch is connected with pull-up  
     
     def read(self): 
-        top_sw_state = GPIO.input(self.pin_em_sw)
-
-        if GPIO.input(self.pin_em_sw): 
-            return 1
-        else: 
-            print("Emergency switch ON")
-            return 0  
+        """switch not pressed => 1  switch pressed => 0"""
+        em_sw_state = GPIO.input(self.pin_em_sw)
+        return em_sw_state   
 
     def destoy(self): 
         GPIO.cleanup()
+        sys.exit()

@@ -1,4 +1,4 @@
-import RPi.gpio as gpio 
+import RPi.GPIO as GPIO
 import time 
 
 class E2S:
@@ -17,22 +17,11 @@ class E2S:
     
     def read_top(self): 
         top_sw_state = GPIO.input(self.pin_e2s_top)
-
-        if GPIO.input(self.pin_e2s_top): 
-            print("Top Switch ON")
-            ## cut off pwm signal & turn on brake ##
-            return 1
-        else: 
-            return 0 
+        return top_sw_state 
 
     def read_bottom(self): 
         top_sw_state = GPIO.input(self.pin_e2s_bottom)
-
-        if GPIO.input(self.pin_e2s_bottom): 
-            print("Bottom Switch ON")
-            return 1 
-        else: 
-            return 0 
+        return top_sw_state 
 
     def destoy(self): 
         GPIO.cleanup()
