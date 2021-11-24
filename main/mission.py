@@ -136,13 +136,13 @@ class Resilience:
 
             # E2S emergency stop 
             e2s_0_flag, e2s_1_flag = e2s_flag
-            if e2s_0_flag == 0: 
+            if e2s_0_flag: 
                 print("top e2s ON")
                 print("turning off actuator")
                 self.actu.brakeon()
                 self.actu.stop_esc(self.current_throttle)
                 self.mode = 1
-            elif e2s_1_flag == 0: 
+            elif e2s_1_flag: 
                 print("bottom e2s ON")
                 print("turning off actuator")
                 self.actu.brakeon()
