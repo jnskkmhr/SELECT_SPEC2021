@@ -148,9 +148,9 @@ class Actuator:
         ESC should be slow gradualy.
         """ 
         print("Duty ratio decreasing.")
-        # throttle = self.throttle_a0 + self.throttle_a1*duty 
+        # duty = self.throttle_a0 + self.throttle_a1*throttle
         # duty = (throttle - self.throttle_a0) / self.throttle_a1 
-        duty = (throttle - self.throttle_a0) / self.throttle_a1 
+        duty = self.throttle_a0 + self.throttle_a1 * throttle
         delta = self.decrease_rate*(duty-self.min_duty)
         for i in range(round(1/self.decrease_rate)):
             duty = duty-delta
@@ -239,8 +239,9 @@ class Actuator:
         duty_count = round(duty/duty_step)
         
         print("duty:", duty)
+        # while motion flag is True, keep motor on 
         self.esc.ChangeDutyCycle(duty)
-        # sleep(10)
+        sleep(5)
         # self.stop_esc(duty)
 
     def new_duty(self, duty:float):
