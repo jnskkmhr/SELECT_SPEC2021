@@ -10,6 +10,7 @@ import selemod
 from selemod import Actuator, Bme280, Sht31
 from E2S import E2S
 from EM_switch import EM_SW
+from counter import LS7366R
 
 import threading # if unable to import, use "pip3 install thread6 in terminal"
 
@@ -21,36 +22,37 @@ class Resilience:
         --------------------------------------------------------
         DISTANCE(int) : maximum altitude of climber (100m)
         SPEC(dict) : {"radius":radius(int), "height":height(int)}
-        sensor(dict) : {"bme" : bool, "sht" : bool}
+        sensor(dict) : {"bme" : bool, "sht" : bool, "counter" : bool}
 
         usage
         ---------------------------------------------------------------------------------
         set what's related to the mission (e.g. constants, class object, setup method etc)
         """
 
-        # mode of esc 
-        # 0 => elevation  1 => free fall 
-        self.mode = 0 
-
         # physical info about the climber 
         self.DISTANCE = DISTANCE
         self.REDUCE_RATE = 0.05 
         self.RADIUS, self.HEIGHT = SPEC["radius"], SPEC["height"]
-        self.bme_is_use, self.sht_is_use = sensor["bme"], sensor["sht"]
+        self.bme_is_use, self.sht_is_use, self.counter_is_use = sensor["bme"], sensor["sht"], sensor["counter"]
 
         # pin setup 
         self.pin_esc = 18 
         self.pin_servo_1 = 23 
+        # e2s pin setup 
+        self.pin_e2s_top = 16 
+        self.pin_e2s_bottom = 20 
+        # emergency switch pin setup 
+        self.pin_em_sw = 21
+
+        # motor motion setup
         self.freq_esc = 50 
         self.freq_servo = 50 
         self.brakeon_duty = 8.72
         self.brakeoff_duty = 4.85 
-        self.throttle_a0 = 5.15 # duty vs throttle weight 
-        self.throttle_a1 = 0.047 
+        self.throttle_a0 = 5.15 # duty vs throttle weight (this was estiamted from linear regression)
+        self.throttle_a1 = 0.047 # dtuy vs throttle bias
         self.current_throttle = 0
-        self.target_throttle = 0 
-
-        # motor motion setup 
+        self.target_throttle = 0  
         self.lower_lim = 0 
         self.middle_lim1 = 0.3 * self.DISTANCE
         self.middle_lim2 = 0.5 * self.DISTANCE
@@ -58,40 +60,41 @@ class Resilience:
         self.throttle1 = 60 
         self.throttle2 = 60 
         self.throttle3 = 50
-        self.throttle_const = 40 # if heli-mode cannot be used, use low rpm throttle instead 
+        self.throttle_const = 40 # if heli-mode cannot be used, use low rpm throttle instead  
 
-        # e2s pin setup 
-        self.pin_e2s_top = 16 
-        self.pin_e2s_bottom = 20 
+        # instantiation 
+        self.actu = selemod.Actuator(pin_esc=self.pin_esc, pin_servo_1=self.pin_servo_1, 
+                        freq_esc=self.freq_esc, freq_servo=self.freq_servo, 
+                        brakeon_duty=self.brakeon_duty, brakeoff_duty=self.brakeoff_duty, 
+                        throttle_a0=self.throttle_a0, throttle_a1=self.throttle_a1) 
+        self.e2s = E2S(self.pin_e2s_top, self.pin_e2s_bottom) 
+        self.em_sw = EM_SW(self.pin_em_sw) 
+        
+        if self.bme_is_use: 
+            self.bme280 = Bme280(0x76) #bme280 sensor
+        if self.sht_is_use: 
+            self.sht31 = Sht31(0x45) #sht31 sensor
+        if self.counter_is_use: 
+            self.ls7366r = LS7366R(0, 4) #spi ce0 & byte mode=4
 
-        # emergency switch pin setup 
-        self.pin_em_sw = 21 
 
         # encoder pin setup & count, pos
         # these variable are crucial to the mission, so manage these as instance variable of class 
         # (not using as an argument so to manage across method)
         self.count = 0 
         self.pos = 0 
+        # mode of esc 
+        # 0 => elevation  1 => free fall 
+        self.mode = 0 
         
-
-        self.actu = selemod.Actuator(pin_esc=self.pin_esc, pin_servo_1=self.pin_servo_1, 
-                        freq_esc=self.freq_esc, freq_servo=self.freq_servo, 
-                        brakeon_duty=self.brakeon_duty, brakeoff_duty=self.brakeoff_duty, 
-                        throttle_a0=self.throttle_a0, throttle_a1=self.throttle_a1) #actuator(DC & servo motor)
-        self.e2s = E2S(self.pin_e2s_top, self.pin_e2s_bottom) #E2S
-        self.em_sw = EM_SW(self.pin_em_sw) #emergency switch 
-        
-        if self.bme_is_use: 
-            self.bme280 = Bme280(0x76) #bme280 sensor
-        if self.sht_is_use: 
-            self.sht31 = Sht31(0x45) #sht31 sensor
-        
+        #calibration setup 
         print('calibrated esc "y" or "n"')
         inp = input()
         if inp == "y": 
             pass 
         elif inp == "n": 
             self.actu.calibrate_esc() #calibrate esc 
+
         self.actu.brakeoff() #servo brake off b4 climbing 
 
     def motor(self, e2s_flag, em_flag): 
@@ -136,13 +139,16 @@ class Resilience:
 
             # E2S emergency stop 
             e2s_0_flag, e2s_1_flag = e2s_flag
-            if e2s_0_flag: 
+            if e2s_0_flag==0: 
                 print("top e2s ON")
                 print("turning off actuator")
                 self.actu.brakeon()
                 self.actu.stop_esc(self.current_throttle)
                 self.mode = 1
-            elif e2s_1_flag: 
+            else: 
+                pass 
+            
+            if e2s_1_flag==0: 
                 print("bottom e2s ON")
                 print("turning off actuator")
                 self.actu.brakeon()
@@ -157,6 +163,8 @@ class Resilience:
                 print("turning off actuator")
                 self.actu.brakeon()
                 self.actu.stop_esc(self.current_throttle)
+                gpio.cleanup()
+                pigpio.stop()
                 sys.exit()
             else: 
                 pass  
@@ -172,8 +180,8 @@ class Resilience:
 
             if int(self.pos)%(self.DISTANCE*self.REDUCE_RATE) == 0: 
                 print("turning off motor and activate brake for 5sec")
-                self.actu.stop_esc(self.current_throttle)
                 self.actu.brakeon()
+                self.actu.stop_esc(self.current_throttle)
                 sleep(5)
         
     # def brake(self, servo_flag):
@@ -198,7 +206,7 @@ class Resilience:
     def _encoder(self): 
         '''based on encoder count value, compute climber's position'''
         while True: 
-            # self.count = ... #update counter value here 
+            self.count = self.ls7366r.read_counter()
             self.pos = 2 * pi * self.RADIUS * self.count
             print("count: {}    position{}m\n".format(self.count, self.pos))
 
@@ -213,12 +221,12 @@ class Resilience:
 
 
     def run(self):
-        # this is main program 
+        # main program 
         
         # process _encoder function in another thread
         enc_thread = threading.Thread(target=self._encoder)
         enc_thread.start()
-        enc_thread.join()
+        enc_thread.setDaemon(True)
 
         while True: 
             try: 

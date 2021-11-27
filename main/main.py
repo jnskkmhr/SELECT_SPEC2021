@@ -8,7 +8,7 @@ import time
 def main(): 
     distance = 100 # in meter  
     spec = {"radius": 0.3, "height": 2} # in meter
-    sensor = {"bme" : False, "sht" : False}
+    sensor = {"bme" : False, "sht" : False, "counter" : True}
     res = Resilience(distance, spec, sensor)
     res.run()
 
