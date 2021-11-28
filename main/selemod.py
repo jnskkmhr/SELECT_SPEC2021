@@ -149,7 +149,6 @@ class Actuator:
         """ 
         print("Duty ratio decreasing.")
         # duty = self.throttle_a0 + self.throttle_a1*throttle
-        # duty = (throttle - self.throttle_a0) / self.throttle_a1 
         duty = self.throttle_a0 + self.throttle_a1 * throttle
         delta = self.decrease_rate*(duty-self.min_duty)
         for i in range(round(1/self.decrease_rate)):

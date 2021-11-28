@@ -16,11 +16,12 @@ import threading # if unable to import, use "pip3 install thread6 in terminal"
 
 
 class Resilience: 
-    def __init__(self, DISTANCE:int, SPEC:dict, sensor:dict): 
+    def __init__(self, DISTANCE:int, REDUCE_RATE: float, SPEC:dict, sensor:dict): 
         """
         Args
         --------------------------------------------------------
         DISTANCE(int) : maximum altitude of climber (100m)
+        REUDCE_RATE(float) : reduce rate of climber falling sequence (0.05)
         SPEC(dict) : {"radius":radius(int), "height":height(int)}
         sensor(dict) : {"bme" : bool, "sht" : bool, "counter" : bool}
 
@@ -31,7 +32,7 @@ class Resilience:
 
         # physical info about the climber 
         self.DISTANCE = DISTANCE
-        self.REDUCE_RATE = 0.05 
+        self.REDUCE_RATE = REDUCE_RATE
         self.RADIUS, self.HEIGHT = SPEC["radius"], SPEC["height"]
         self.bme_is_use, self.sht_is_use, self.counter_is_use = sensor["bme"], sensor["sht"], sensor["counter"]
 
@@ -133,33 +134,37 @@ class Resilience:
                 print("climber near the goal")
                 self.actu.stop_esc(self.current_throttle)
                 self.actu.brakeon()
-                print("switching to heli-mode")
-                # cmd to switch to heli-mode 
                 self.mode = 1 
+                print("switching to mode 1")
 
             # E2S emergency stop 
             e2s_0_flag, e2s_1_flag = e2s_flag
             if e2s_0_flag==0: 
                 print("top e2s ON")
+                print("Final position status : count {},  position {}".format(self.count, self.pos))
                 print("turning off actuator")
                 self.actu.brakeon()
                 self.actu.stop_esc(self.current_throttle)
                 self.mode = 1
+                print("switching to mode 1")
             else: 
                 pass 
             
             if e2s_1_flag==0: 
                 print("bottom e2s ON")
+                print("Final position status : count {},  position {}".format(self.count, self.pos))
                 print("turning off actuator")
                 self.actu.brakeon()
                 self.actu.stop_esc(self.current_throttle)
                 self.mode = 1
+                print("switching to mode 1")
             else: 
                 pass 
 
             # Emergency switch stop 
             if em_flag == 1: 
                 print("emergency switch ON")
+                print("Final position status : count {},  position {}".format(self.count, self.pos))
                 print("turning off actuator")
                 self.actu.brakeon()
                 self.actu.stop_esc(self.current_throttle)
@@ -174,15 +179,16 @@ class Resilience:
         elif self.mode == 1: 
             #swith to heli-mode every 5% of DISTANCE
             if self.current_throttle != self.throttle_const: 
+                print("climber in mode 1:")
                 print("setting throttle 40%")
                 self.actu.new_throttle(self.throttle_const)
                 self.current_throttle = self.throttle_const
 
             if int(self.pos)%(self.DISTANCE*self.REDUCE_RATE) == 0: 
                 print("turning off motor and activate brake for 5sec")
-                self.actu.brakeon()
+                self.actu.brakeon() ####brake first or stop esc?####
                 self.actu.stop_esc(self.current_throttle)
-                sleep(5)
+                sleep(2)
         
     # def brake(self, servo_flag):
     #     """ 
@@ -236,6 +242,35 @@ class Resilience:
                 self.motor(e2s_flag, em_flag)
             except KeyboardInterrupt: 
                 print("Aborting the sequence")
+                print("Final position status : count {},  position {}".format(self.count, self.pos))
+                self.stop_esc(self.current_throttle)
+                self.actu.brakeon()
+                gpio.cleanup()
+                pigpio.stop()
+                sys.exit()
+
+    def backward(self, count, pos, dist, reduce_rate): 
+        # override DISTANCE & REDUCE_RATE up to the climber's position 
+        self.DISTANCE = dist 
+        self.REDUCE_RATE = reduce_rate 
+        self.count = count 
+        self.pos = pos 
+
+        enc_thread = threading.Thread(target=self._encoder)
+        enc_thread.start()
+        enc_thread.setDaemon(True)
+
+        # forcely set self.mode = 1 to switch to backward run 
+        self.mode = 1 
+
+        while True: 
+            try: 
+                em_flag = self._em_sw()
+                e2s_flag = self._e2s()
+                self.motor(e2s_flag, em_flag) #since self.mode = 1, start sequence from backward running
+            except KeyboardInterrupt: 
+                print("Aborting the sequence")
+                print("Final position status : count {},  position {}".format(self.count, self.pos))
                 self.stop_esc(self.current_throttle)
                 self.actu.brakeon()
                 gpio.cleanup()
