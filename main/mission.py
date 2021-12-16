@@ -47,8 +47,8 @@ class Resilience:
         # motor motion setup
         self.freq_esc = 50 
         self.freq_servo = 50 
-        self.brakeoff_duty = 8.72
-        self.brakeon_duty = 4.85 
+        self.brakeon_duty = 8.72
+        self.brakeoff_duty = 4.85 
         self.throttle_a0 = 5.15 # duty vs throttle weight (this was estiamted from linear regression)
         self.throttle_a1 = 0.047 # dtuy vs throttle bias
         self.current_throttle = 0
