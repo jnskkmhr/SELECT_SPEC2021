@@ -231,14 +231,14 @@ class Resilience:
 
         # process _encoder function in another thread
         #enc_thread = threading.Thread(target=self._encoder)
-        enc_thread.start()
-        enc_thread.setDaemon(True)
+        #enc_thread.start()
+        #enc_thread.setDaemon(True)
 
         while True: 
             try: 
                 em_flag = self._em_sw()
                 e2s_flag = self._e2s()
-                self._encoder()
+                #self._encoder()
                 self.motor(e2s_flag, em_flag)
             except KeyboardInterrupt: 
                 print("Aborting the sequence")
