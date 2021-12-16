@@ -1,3 +1,4 @@
+
 # suppose test.py is at the same directory as selemod.py 
 
 #import dependencies 
@@ -51,6 +52,7 @@ if yesorno == 'n':
         print("test aborted")
 
 elif yesorno == 'y':
+
     print("Actuate motor. y/n")
     yesorno = input()
     if yesorno == 'y':

@@ -58,8 +58,8 @@ class Resilience:
         self.middle_lim1 = 0.3 * self.DISTANCE
         self.middle_lim2 = 0.5 * self.DISTANCE
         self.upper_lim = 0.85 * self.DISTANCE 
-        self.throttle1 = 60 
-        self.throttle2 = 60 
+        self.throttle1 = 55 
+        self.throttle2 = 55 
         self.throttle3 = 50
         self.throttle_const = 40 # if heli-mode cannot be used, use low rpm throttle instead  
 
@@ -75,8 +75,8 @@ class Resilience:
             self.bme280 = Bme280(0x76) #bme280 sensor
         if self.sht_is_use: 
             self.sht31 = Sht31(0x45) #sht31 sensor
-        if self.counter_is_use: 
-            self.ls7366r = LS7366R(0, 4) #spi ce0 & byte mode=4
+        #if self.counter_is_use: 
+        #    self.ls7366r = LS7366R(0, 4) #spi ce0 & byte mode=4
 
 
         # encoder pin setup & count, pos
@@ -211,10 +211,10 @@ class Resilience:
     
     def _encoder(self): 
         '''based on encoder count value, compute climber's position'''
-        while True: 
-            self.count = self.ls7366r.read_counter()
-            self.pos = 2 * pi * self.RADIUS * self.count
-            print("count: {}    position{}m\n".format(self.count, self.pos))
+        #while True: 
+        #    self.count = self.ls7366r.read_counter()
+        #    self.pos = 2 * pi * self.RADIUS * self.count
+        #    print("count: {}    position{}m\n".format(self.count, self.pos))
 
 
     def _bme280(self): 
@@ -232,7 +232,7 @@ class Resilience:
         # process _encoder function in another thread
         enc_thread = threading.Thread(target=self._encoder)
         enc_thread.start()
-        enc_thread.setDaemon(True)
+        #enc_thread.setDaemon(True)
 
         while True: 
             try: 
