@@ -291,6 +291,8 @@ class Actuator:
         """
         self.ser_1.ChangeDutyCycle(self.brakeon_duty)
         #self.ser_2.ChangeDutyCycle(self.brakeon_duty)
+        print("Brake on")
+        sleep(2)
 
     def brakeoff(self):
         """
@@ -298,18 +300,23 @@ class Actuator:
         """
         self.ser_1.ChangeDutyCycle(self.brakeoff_duty)
         #self.ser_2.ChangeDutyCycle(self.brakeoff_duty)
+        print("Brake off")
+        sleep(2)
 
     def check_brake(self):
         while True:
             try:
               self.ser_1.ChangeDutyCycle(self.brakeoff_duty)
+              print("Next ON.")
               sleep(1)
               self.ser_1.ChangeDutyCycle(self.brakeon_duty)
+              print("Next OFF.")
               sleep(1)
             except KeyboardInterrupt:
               self.ser_1.ChangeDutyCycle(self.brakeoff_duty)
               sleep(1)
               print("Brake check completed.")
+              break
               
     # tune mode, need to edit
     """

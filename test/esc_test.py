@@ -6,6 +6,7 @@ import sys
 sys.path.append('../main')
 from main import selemod 
 import test_ec2 
+import time
 
 # instantiate actuator class 
 pin_esc = 18
@@ -34,6 +35,7 @@ if yesorno == 'n':
     actu.calibrate_esc()
     print("Actuate motor. y/n\n")
     yesorno = input()
+    actu.brakeon()
     if yesorno == 'y':
         try:
             throttle = input("What throttle? Please type a value from 0 to 100.")
@@ -53,6 +55,7 @@ if yesorno == 'n':
 
 elif yesorno == 'y':
     actu.set_min_throttle()
+    actu.brakeon()
     yesorno = input("Actuate motor. y/n")
     if yesorno == 'y':
         try:
@@ -61,12 +64,16 @@ elif yesorno == 'y':
             print("throttle:", throttle)
             actu.new_throttle(throttle)
             actu.stop_esc(throttle)
+            print("Brake working.")
+            actu.brakeoff()
             print("End test.")
 
         except KeyboardInterrupt:
             print("Operation aborted. Duty ratio start decreasing.")
             actu.stop_esc(throttle)
             print("Motor has stopped.")
+            actu.brakeoff()
+            print("Brake working.")
     if yesorno == 'n':
         print("test aborted")
 
