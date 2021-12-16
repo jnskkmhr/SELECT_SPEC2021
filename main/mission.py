@@ -47,10 +47,8 @@ class Resilience:
         # motor motion setup
         self.freq_esc = 50 
         self.freq_servo = 50 
-        #self.brakeon_duty = 8.72
-        self.brakeon_duty = 9
-        self.brakeoff_duty = 2
-        #self.brakeoff_duty = 4.85 
+        self.brakeoff_duty = 8.72
+        self.brakeon_duty = 4.85 
         self.throttle_a0 = 5.15 # duty vs throttle weight (this was estiamted from linear regression)
         self.throttle_a1 = 0.047 # dtuy vs throttle bias
         self.current_throttle = 0
@@ -67,7 +65,7 @@ class Resilience:
         # instantiation 
         self.actu = selemod.Actuator(pin_esc=self.pin_esc, pin_servo_1=self.pin_servo_1, 
                         freq_esc=self.freq_esc, freq_servo=self.freq_servo, 
-                        brakeon_duty=self.brakeon_duty, brakeoff_duty=self.brakeoff_duty, 
+                        brakeoff_duty=self.brakeon_duty, brakeon_duty=self.brakeon_duty, 
                         throttle_a0=self.throttle_a0, throttle_a1=self.throttle_a1) 
         self.e2s = E2S(self.pin_e2s_top, self.pin_e2s_bottom) 
         self.em_sw = EM_SW(self.pin_em_sw) 
@@ -76,8 +74,8 @@ class Resilience:
             self.bme280 = Bme280(0x76) #bme280 sensor
         if self.sht_is_use: 
             self.sht31 = Sht31(0x45) #sht31 sensor
-        #if self.counter_is_use: 
-        #    self.ls7366r = LS7366R(0, 4) #spi ce0 & byte mode=4
+        if self.counter_is_use: 
+            self.ls7366r = LS7366R(0, 4) #spi ce0 & byte mode=4
 
 
         # encoder pin setup & count, pos
@@ -99,7 +97,7 @@ class Resilience:
         elif inp == "n": 
             self.actu.calibrate_esc() #calibrate esc 
 
-        self.actu.brakeoff() #servo brake off b4 climbing 
+        self.actu.brakeon() #servo brake off b4 climbing 
 
     def motor(self, e2s_flag, em_flag): 
         """
@@ -199,7 +197,7 @@ class Resilience:
     #     if servo_flag==0: 
     #         self.actu.ser_1.brakeon()
     #     elif servo_flag==1: 
-    #         self.actu.ser_1.brakeoff() 
+    #         self.actu.ser_1.brakeon() 
 
     def _e2s(self): 
         e2s_0_flag = self.e2s.read_top()
@@ -234,18 +232,18 @@ class Resilience:
         # process _encoder function in another thread
         enc_thread = threading.Thread(target=self._encoder)
         enc_thread.start()
-        #enc_thread.setDaemon(True)
+        enc_thread.setDaemon(True)
 
         while True: 
             try: 
                 em_flag = self._em_sw()
                 e2s_flag = self._e2s()
-                # self._encoder()
+                self._encoder()
                 self.motor(e2s_flag, em_flag)
             except KeyboardInterrupt: 
                 print("Aborting the sequence")
                 print("Final position status : count {},  position {}".format(self.count, self.pos))
-                self.stop_esc(self.current_throttle)
+                self.actu.stop_esc(self.current_throttle)
                 self.actu.brakeon()
                 gpio.cleanup()
                 sys.exit()
@@ -272,7 +270,7 @@ class Resilience:
             except KeyboardInterrupt: 
                 print("Aborting the sequence")
                 print("Final position status : count {},  position {}".format(self.count, self.pos))
-                self.stop_esc(self.current_throttle)
+                self.actu.stop_esc(self.current_throttle)
                 self.actu.brakeon()
                 gpio.cleanup()
                 sys.exit()
