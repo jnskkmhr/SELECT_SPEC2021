@@ -41,6 +41,7 @@ if yesorno == 'n':
             print("throttle:", throttle)
             actu.new_throttle(throttle)
             actu.stop_esc(throttle)
+            actu.brakeon()
             print("End test.")
 
         except KeyboardInterrupt:

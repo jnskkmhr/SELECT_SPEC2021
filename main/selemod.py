@@ -67,7 +67,6 @@ class Actuator:
     def calibrate_esc(self):
         """
         ESC needs calibration when connecting transmitter to ESC for the first time.
-        It uses pigpio library.
         """ 
 
         print("initializing esc, remove battery...")
@@ -302,11 +301,16 @@ class Actuator:
 
     def check_brake(self):
         while True:
+            try:
               self.ser_1.ChangeDutyCycle(self.brakeoff_duty)
               sleep(1)
               self.ser_1.ChangeDutyCycle(self.brakeon_duty)
               sleep(1)
-
+            except KeyboardInterrupt:
+              self.ser_1.ChangeDutyCycle(self.brakeoff_duty)
+              sleep(1)
+              print("Brake check completed.")
+              
     # tune mode, need to edit
     """
     def tune(self, meter):

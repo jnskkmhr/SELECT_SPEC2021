@@ -1,7 +1,6 @@
 from mission import Resilience
 import selemod 
 import RPi.GPIO as gpio 
-import pigpio 
 import sys 
 import time 
 

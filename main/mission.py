@@ -1,6 +1,5 @@
 import sys 
 import RPi.GPIO as gpio 
-import pigpio 
 import smbus
 import spidev
 import time 
@@ -173,7 +172,6 @@ class Resilience:
                 self.actu.brakeon()
                 self.actu.stop_esc(self.current_throttle)
                 gpio.cleanup()
-                pigpio.stop()
                 sys.exit()
             else: 
                 pass  
@@ -250,7 +248,6 @@ class Resilience:
                 self.stop_esc(self.current_throttle)
                 self.actu.brakeon()
                 gpio.cleanup()
-                pigpio.stop()
                 sys.exit()
 
     def backward(self, count, pos, dist, reduce_rate): 
@@ -278,5 +275,4 @@ class Resilience:
                 self.stop_esc(self.current_throttle)
                 self.actu.brakeon()
                 gpio.cleanup()
-                pigpio.stop()
                 sys.exit()
