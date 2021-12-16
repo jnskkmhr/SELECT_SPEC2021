@@ -27,25 +27,24 @@ actu = selemod.Actuator(pin_esc=pin_esc, pin_servo_1=pin_servo_1,
                         throttle_a0=throttle_a0, throttle_a1=throttle_a1)
 
 # initial setup of esc
-print("Have you calibrated the motor? (y/n)")
+print("Have you calibrated the motor? (y/n)\n")
 yesorno = input() 
 if yesorno == 'n':
     print("Start caliberation.")
     actu.calibrate_esc()
-    print("Actuate motor. y/n")
+    print("Actuate motor. y/n\n")
     yesorno = input()
     if yesorno == 'y':
         try:
-            #print("What throttle? Please type integer from 0 to 100.s")
-            throttle = float(60)
-            print("throttle_a0:", throttle_a0)
-            print("throttle_a1:", throttle_a1)
+            throttle = input("What throttle? Please type a value from 0 to 100.")
+            throttle = float(throttle)
             print("throttle:", throttle)
-            # duty = throttle_a0 + throttle_a1 * throttle
             actu.new_throttle(throttle)
+            actu.stop_esc(throttle)
+            print("End test.")
+
         except KeyboardInterrupt:
             print("Operation aborted. Duty ratio start decreasing.")
-            # actu.stop_esc(duty)
             actu.stop_esc(throttle)
             print("Motor has stopped.")
     if yesorno == 'n':
@@ -53,15 +52,15 @@ if yesorno == 'n':
 
 elif yesorno == 'y':
     actu.set_min_throttle()
-    print("Actuate motor. y/n")
-    yesorno = input()
+    yesorno = input("Actuate motor. y/n")
     if yesorno == 'y':
         try:
             throttle = input("What throttle? Please type a value from 0 to 100.")
-            print("throttle_a0:", throttle_a0)
-            print("throttle_a1:", throttle_a1)
+            throttle = float(throttle)
             print("throttle:", throttle)
-            actu.new_throttle(float(throttle))
+            actu.new_throttle(throttle)
+            actu.stop_esc(throttle)
+            print("End test.")
 
         except KeyboardInterrupt:
             print("Operation aborted. Duty ratio start decreasing.")

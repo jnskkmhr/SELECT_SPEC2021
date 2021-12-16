@@ -11,7 +11,14 @@ def main():
     spec = {"radius": 0.3, "height": 2} # in meter
     sensor = {"bme" : False, "sht" : False, "counter" : True}
     res = Resilience(distance, reduce_rate, spec, sensor)
-    res.run()
+    yesorno = input("Actuate motor? y/n\n")
+
+    if yesorno =='y':
+       res.run()
+    elif yesorno =='n':
+       print("Test aborting.")
+    else:
+       print("Unexpected word was input.")
 
 if __name__ == "__main__": 
     main()

@@ -48,8 +48,10 @@ class Resilience:
         # motor motion setup
         self.freq_esc = 50 
         self.freq_servo = 50 
-        self.brakeon_duty = 8.72
-        self.brakeoff_duty = 4.85 
+        #self.brakeon_duty = 8.72
+        self.brakeon_duty = 9
+        self.brakeoff_duty = 2
+        #self.brakeoff_duty = 4.85 
         self.throttle_a0 = 5.15 # duty vs throttle weight (this was estiamted from linear regression)
         self.throttle_a1 = 0.047 # dtuy vs throttle bias
         self.current_throttle = 0
@@ -92,7 +94,7 @@ class Resilience:
         print('calibrated esc "y" or "n"')
         inp = input()
         if inp == "y":
-            self.actu.set_minimum_throttle()
+            self.actu.set_min_throttle()
 
             pass 
         elif inp == "n": 
@@ -229,8 +231,8 @@ class Resilience:
 
 
     def run(self):
-        # main program 
-        
+        # main program cc
+
         # process _encoder function in another thread
         enc_thread = threading.Thread(target=self._encoder)
         enc_thread.start()

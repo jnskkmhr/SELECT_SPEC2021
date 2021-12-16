@@ -99,6 +99,8 @@ class Actuator:
         duty_initial = self.min_duty
         print("duty:", duty_initial)
         self.esc.start(duty_initial)
+        sleep(3)
+        print("Setup has completed.\n")
 
 
     def test_esc(self):
@@ -297,6 +299,13 @@ class Actuator:
         """
         self.ser_1.ChangeDutyCycle(self.brakeoff_duty)
         #self.ser_2.ChangeDutyCycle(self.brakeoff_duty)
+
+    def check_brake(self):
+        while True:
+              self.ser_1.ChangeDutyCycle(self.brakeoff_duty)
+              sleep(1)
+              self.ser_1.ChangeDutyCycle(self.brakeon_duty)
+              sleep(1)
 
     # tune mode, need to edit
     """
