@@ -65,7 +65,7 @@ class Resilience:
         # instantiation 
         self.actu = selemod.Actuator(pin_esc=self.pin_esc, pin_servo_1=self.pin_servo_1, 
                         freq_esc=self.freq_esc, freq_servo=self.freq_servo, 
-                        brakeoff_duty=self.brakeon_duty, brakeon_duty=self.brakeon_duty, 
+                        brakeoff_duty=self.brakeoff_duty, brakeon_duty=self.brakeon_duty, 
                         throttle_a0=self.throttle_a0, throttle_a1=self.throttle_a1) 
         self.e2s = E2S(self.pin_e2s_top, self.pin_e2s_bottom) 
         self.em_sw = EM_SW(self.pin_em_sw) 
@@ -186,7 +186,7 @@ class Resilience:
 
             if int(self.pos)%(self.DISTANCE*self.REDUCE_RATE) == 0: 
                 print("turning off motor and activate brake for 5sec")
-                self.actu.brakeon() ####brake first or stop esc?####
+                self.actu.brakeoff() ####brake first or stop esc?####
                 self.actu.stop_esc(self.current_throttle)
                 sleep(2)
         
