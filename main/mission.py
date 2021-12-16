@@ -134,7 +134,7 @@ class Resilience:
             if self.upper_lim <= self.pos: 
                 print("climber near the goal")
                 self.actu.stop_esc(self.current_throttle)
-                self.actu.brakeon()
+                self.actu.brakeoff()
                 self.mode = 1 
                 print("switching to mode 1")
 
@@ -144,7 +144,7 @@ class Resilience:
                 print("top e2s ON")
                 print("Final position status : count {},  position {}".format(self.count, self.pos))
                 print("turning off actuator")
-                self.actu.brakeon()
+                self.actu.brakeoff()
                 self.actu.stop_esc(self.current_throttle)
                 self.mode = 1
                 print("switching to mode 1")
@@ -155,7 +155,7 @@ class Resilience:
                 print("bottom e2s ON")
                 print("Final position status : count {},  position {}".format(self.count, self.pos))
                 print("turning off actuator")
-                self.actu.brakeon()
+                self.actu.brakeoff()
                 self.actu.stop_esc(self.current_throttle)
                 self.mode = 1
                 print("switching to mode 1")
@@ -167,7 +167,7 @@ class Resilience:
                 print("emergency switch ON")
                 print("Final position status : count {},  position {}".format(self.count, self.pos))
                 print("turning off actuator")
-                self.actu.brakeon()
+                self.actu.brakeoff()
                 self.actu.stop_esc(self.current_throttle)
                 gpio.cleanup()
                 sys.exit()
@@ -244,7 +244,7 @@ class Resilience:
                 print("Aborting the sequence")
                 print("Final position status : count {},  position {}".format(self.count, self.pos))
                 self.actu.stop_esc(self.current_throttle)
-                self.actu.brakeon()
+                self.actu.brakeoff()
                 gpio.cleanup()
                 sys.exit()
 
@@ -271,6 +271,6 @@ class Resilience:
                 print("Aborting the sequence")
                 print("Final position status : count {},  position {}".format(self.count, self.pos))
                 self.actu.stop_esc(self.current_throttle)
-                self.actu.brakeon()
+                self.actu.brakeoff()
                 gpio.cleanup()
                 sys.exit()
