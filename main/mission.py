@@ -74,8 +74,8 @@ class Resilience:
             self.bme280 = Bme280(0x76) #bme280 sensor
         if self.sht_is_use: 
             self.sht31 = Sht31(0x45) #sht31 sensor
-        if self.counter_is_use: 
-            self.ls7366r = LS7366R(0, 4) #spi ce0 & byte mode=4
+        #if self.counter_is_use: 
+        #    self.ls7366r = LS7366R(0, 4) #spi ce0 & byte mode=4
 
 
         # encoder pin setup & count, pos
@@ -190,14 +190,14 @@ class Resilience:
                 self.actu.stop_esc(self.current_throttle)
                 sleep(2)
         
-    # def brake(self, servo_flag):
-    #     """ 
-    #     sevo_flag(int) : binary integer flag whether turning on brake or not 
-    #     """
-    #     if servo_flag==0: 
-    #         self.actu.ser_1.brakeon()
-    #     elif servo_flag==1: 
-    #         self.actu.ser_1.brakeon() 
+    def brake(self, servo_flag):
+         """ 
+         sevo_flag(int) : binary integer flag whether turning on brake or not 
+         """
+         if servo_flag==0: 
+             self.actu.ser_1.brakeon()
+         elif servo_flag==1: 
+             self.actu.ser_1.brakeon() 
 
     def _e2s(self): 
         e2s_0_flag = self.e2s.read_top()
@@ -211,10 +211,10 @@ class Resilience:
     
     def _encoder(self): 
         '''based on encoder count value, compute climber's position'''
-        #while True: 
-        #    self.count = self.ls7366r.read_counter()
-        #    self.pos = 2 * pi * self.RADIUS * self.count
-        #    print("count: {}    position{}m\n".format(self.count, self.pos))
+        while True: 
+            self.count = self.ls7366r.read_counter()
+            self.pos = 2 * pi * self.RADIUS * self.count
+            print("count: {}    position{}m\n".format(self.count, self.pos))
 
 
     def _bme280(self): 
@@ -230,7 +230,7 @@ class Resilience:
         # main program cc
 
         # process _encoder function in another thread
-        enc_thread = threading.Thread(target=self._encoder)
+        #enc_thread = threading.Thread(target=self._encoder)
         enc_thread.start()
         enc_thread.setDaemon(True)
 
@@ -255,7 +255,7 @@ class Resilience:
         self.count = count 
         self.pos = pos 
 
-        enc_thread = threading.Thread(target=self._encoder)
+        #enc_thread = threading.Thread(target=self._encoder)
         enc_thread.start()
         enc_thread.setDaemon(True)
 
