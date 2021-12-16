@@ -88,6 +88,17 @@ class Actuator:
             if yesorno == 'y':
                 print("Calibration has completed.")
                 sleep(1)
+    
+    def set_min_throttle(self):
+        """
+        This function is used before you start rotating motor. 
+        Setting minimum throttle is needed before sending specified PWM pulse.
+        You need to confirm whether the set minimum throttle is valid by executing calibrate_esc().
+        """
+
+        duty_initial = self.min_duty
+        print("duty:", duty_initial)
+        self.esc.start(duty_initial)
 
 
     def test_esc(self):
@@ -99,14 +110,12 @@ class Actuator:
         so you had better make a record of the throttle data corresponded to the duty.
         you can use the throttle data and culculate the duty-throttle relation as linear-relation model.
         """
- 
-        duty_initial = self.min_duty      #starting to rotate at duty ratio 7.5 because intermediate point pulse width is 1.5msec
+         #starting to rotate at duty ratio 7.5 because intermediate point pulse width is 1.5msec
         duty_step = 0.5
         upper_limit = 0.9*self.max_duty
-
         duty_count = round((upper_limit-duty_initial)/duty_step)
-        print("duty:", duty_initial)
-        self.esc.start(duty_initial)
+        self.set_min_throttle()
+
 
 
         print("Is the motor silent? y/n")

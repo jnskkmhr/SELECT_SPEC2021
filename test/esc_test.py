@@ -52,22 +52,19 @@ if yesorno == 'n':
         print("test aborted")
 
 elif yesorno == 'y':
-
+    actu.set_min_throttle()
     print("Actuate motor. y/n")
     yesorno = input()
     if yesorno == 'y':
         try:
-            #print("What throttle? Please type integer from 0 to 100.s")
-            throttle = float(60)
+            throttle = input("What throttle? Please type a value from 0 to 100.")
             print("throttle_a0:", throttle_a0)
             print("throttle_a1:", throttle_a1)
             print("throttle:", throttle)
-            # duty = throttle_a0 + throttle_a1 * throttle
-            actu.new_throttle(throttle)
+            actu.new_throttle(float(throttle))
 
         except KeyboardInterrupt:
             print("Operation aborted. Duty ratio start decreasing.")
-            # actu.stop_esc(duty)
             actu.stop_esc(throttle)
             print("Motor has stopped.")
     if yesorno == 'n':

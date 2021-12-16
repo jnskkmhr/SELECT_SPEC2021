@@ -91,7 +91,9 @@ class Resilience:
         #calibration setup 
         print('calibrated esc "y" or "n"')
         inp = input()
-        if inp == "y": 
+        if inp == "y":
+            self.actu.set_minimum_throttle()
+
             pass 
         elif inp == "n": 
             self.actu.calibrate_esc() #calibrate esc 
