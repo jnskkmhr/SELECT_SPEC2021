@@ -1,4 +1,3 @@
-main/__pycache__/
-mission.cpython-38.pyc
 .env/
 *.pyc
+*.swp
