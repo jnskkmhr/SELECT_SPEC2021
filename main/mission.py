@@ -20,7 +20,7 @@ class Resilience:
         Args
         --------------------------------------------------------
         DISTANCE(int) : maximum altitude of climber (100m)
-        REUDCE_RATE(float) : reduce rate of climber falling sequence (0.05)
+        REDUCE_RATE(float) : reduce rate of climber falling sequence (0.05)
         SPEC(dict) : {"radius":radius(int), "height":height(int)}
         sensor(dict) : {"bme" : bool, "sht" : bool, "counter" : bool}
 
@@ -117,7 +117,7 @@ class Resilience:
         # if so, add position domain like middle_lim1, middle_lim2, middle_lim3, ... 
         # throttle value of each domain is initialized in construction 
 
-        if self.mode == 0: 
+        if self.mode == 0:
             if self.lower_lim <= self.pos < self.middle_lim1: 
                 self.target_throttle = self.throttle1
             elif self.middle_lim1 <= self.pos < self.middle_lim2: 

@@ -10,7 +10,7 @@ class E2S:
         pin_ec2_bottom : bottom ec2 corrector gpio 
         actu : actuator instance 
         """
-        self.pin_e2s_top = pin_e2s_top 
+        self.pin_e2s_top = pin_e2s_top
         self.pin_e2s_bottom = pin_e2s_bottom 
         GPIO.setup(pin_e2s_top, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(pin_e2s_bottom, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
