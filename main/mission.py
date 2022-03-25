@@ -6,8 +6,7 @@ import time
 from math import pi 
 
 import selemod 
-from selemod import Actuator, Bme280, Sht31
-from E2S import E2S
+from selemod import Actuator, Bme280, Sht31, E2S
 from EM_switch import EM_SW
 from counter import LS7366R
 
