@@ -1,6 +1,8 @@
-import RPi.GPIO as gpio
-import time
+import sys
+sys.path.append('../')
 from selemod import E2S
+import time
+import RPi.GPIO
 
 #このプログラムの起動は時限式にする
 # もしくは、クライマーの高度が上端のダンパー付近に来た時に、起動する
