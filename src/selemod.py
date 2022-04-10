@@ -678,5 +678,5 @@ class E2S:
         top_sw_state = gpio.input(self.pin_e2s_bottom)
         return top_sw_state 
 
-    def destoy(self): 
+    def destroy(self): 
         gpio.cleanup()

@@ -14,5 +14,13 @@ pin_e2s_bottom = 20
 
 e2s_ = E2S(pin_e2s_top, pin_e2s_bottom)
 print("instantiation cuccessed!")
-top_sw_state = e2s_.read_top
-print(top_sw_state)
+
+while True:
+  try:
+      top_sw_state = e2s_.read_top()
+      print(top_sw_state)
+  except KeyboardInterrupt:
+     print("Operation was killed!")
+     e2s_.destroy()
+     break
+
