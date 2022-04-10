@@ -664,16 +664,16 @@ class E2S:
         """
         self.pin_e2s_top = pin_e2s_top
         self.pin_e2s_bottom = pin_e2s_bottom 
-        GPIO.setup(pin_e2s_top, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(pin_e2s_bottom, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        gpio.setup(pin_e2s_top, gpio.IN, pull_up_down=gpio.PUD_DOWN)
+        gpio.setup(pin_e2s_bottom, gpio.IN, pull_up_down=gpio.PUD_DOWN)
     
     def read_top(self): 
-        top_sw_state = GPIO.input(self.pin_e2s_top)
+        top_sw_state = gpio.input(self.pin_e2s_top)
         return top_sw_state 
 
     def read_bottom(self): 
-        top_sw_state = GPIO.input(self.pin_e2s_bottom)
+        top_sw_state = gpio.input(self.pin_e2s_bottom)
         return top_sw_state 
 
     def destoy(self): 
-        GPIO.cleanup()
+        gpio.cleanup()
