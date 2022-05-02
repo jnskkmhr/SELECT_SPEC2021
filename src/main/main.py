@@ -1,4 +1,5 @@
 from mission import Resilience
+sys.path.append('../')
 import selemod 
 import RPi.GPIO as gpio 
 import sys 
