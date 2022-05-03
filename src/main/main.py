@@ -1,8 +1,8 @@
+import sys 
 sys.path.append('../')
 from mission import Resilience
 import selemod 
 import RPi.GPIO as gpio 
-import sys 
 import time 
 
 def main(): 
