@@ -10,12 +10,10 @@ import RPi.GPIO as gpio
 
 # GPIO.setmode(GPIO.BCM)
 
-pin_e2s_top = 16 
+pin_e2s_top = 16
 pin_e2s_bottom = 20
 
 e2s_ = E2S(pin_e2s_top, pin_e2s_bottom)
-gpio.setup(pin_e2s_bottom, gpio.IN, initial=gpio.LOW)
-gpio.setup(pin_e2s_bottom, gpio.IN, initial=gpio.LOW)
 gpio.setup(pin_e2s_top, gpio.IN, pull_up_down=gpio.PUD_DOWN)
 gpio.setup(pin_e2s_bottom, gpio.IN, pull_up_down=gpio.PUD_DOWN)
 
