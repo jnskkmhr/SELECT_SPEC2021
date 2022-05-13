@@ -20,8 +20,8 @@ class E2S:
         return top_sw_state 
 
     def read_bottom(self): 
-        top_sw_state = GPIO.input(self.pin_e2s_bottom)
-        return top_sw_state 
+        bottom_sw_state = GPIO.input(self.pin_e2s_bottom)
+        return bottom_sw_state 
 
     def destoy(self): 
         GPIO.cleanup()

@@ -139,7 +139,7 @@ class Resilience:
 
             # E2S emergency stop 
             e2s_0_flag, e2s_1_flag = e2s_flag
-            if e2s_0_flag==0: 
+            if e2s_0_flag==1: 
                 print("top e2s ON")
                 print("Final position status : count {},  position {}".format(self.count, self.pos))
                 print("turning off actuator")
@@ -150,7 +150,7 @@ class Resilience:
             else: 
                 pass 
             
-            if e2s_1_flag==0: 
+            if e2s_1_flag==1: 
                 print("bottom e2s ON")
                 print("Final position status : count {},  position {}".format(self.count, self.pos))
                 print("turning off actuator")
