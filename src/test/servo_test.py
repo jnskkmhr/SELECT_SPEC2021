@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from selemod import Actuator
+import selemod
 import time 
 import RPi.GPIO as gpio 
 
