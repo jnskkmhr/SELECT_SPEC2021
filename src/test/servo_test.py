@@ -1,7 +1,8 @@
-import selemod 
+import sys
+sys.path.append('../')
+from selemod import Actuator
 import time 
-import sys 
-import RPi.GPIO as GPIO 
+import RPi.GPIO as gpio 
 
 pin_esc = 12
 pin_servo_1 = 18
@@ -27,5 +28,5 @@ while True:
     except KeyboardInterrupt: 
         actu.ser_1.stop()
         actu.ser_2.stop()
-        GPIO.cleanup()
+        gpio.cleanup()
         sys.exit()
