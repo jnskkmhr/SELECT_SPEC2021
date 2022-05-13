@@ -5,7 +5,7 @@ import time
 import RPi.GPIO as gpio 
 
 pin_esc = 12
-pin_servo_1 = 18
+pin_servo_1 = 23
 freq_esc = 50 
 freq_servo = 50 
 # servo duty min. = 4.85%, max. = 9.85%
