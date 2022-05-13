@@ -3,9 +3,8 @@
 
 #import dependencies 
 import sys 
-sys.path.append('../main')
-from main import selemod 
-import test_ec2 
+sys.path.append('../')
+import selemod
 import time
 
 # instantiate actuator class 
