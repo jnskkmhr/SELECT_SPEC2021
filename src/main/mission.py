@@ -145,8 +145,10 @@ class Resilience:
                 print("turning off actuator")
                 self.actu.brakeoff()
                 self.actu.stop_esc(self.current_throttle)
-                self.mode = 1
-                print("switching to mode 1")
+                gpio.cleanup()
+                sys.exit()
+                #self.mode = 1                  #for retarding
+                #print("switching to mode 1")   #for retarding
             else: 
                 pass 
             
@@ -156,8 +158,10 @@ class Resilience:
                 print("turning off actuator")
                 self.actu.brakeoff()
                 self.actu.stop_esc(self.current_throttle)
-                self.mode = 1
-                print("switching to mode 1")
+                gpio.cleanup()
+                sys.exit()
+                #self.mode = 1
+                #print("switching to mode 1")
             else: 
                 pass 
 
