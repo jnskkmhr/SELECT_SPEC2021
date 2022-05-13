@@ -49,7 +49,7 @@ class Resilience:
         self.brakeon_duty = 8.72
         self.brakeoff_duty = 4.85 
         self.throttle_a0 = 5.15 # duty vs throttle weight (this was estiamted from linear regression)
-        self.throttle_a1 = 0.047 # dtuy vs throttle bias
+        self.throttle_a1 = 0.047 # duty vs throttle bias
         self.current_throttle = 0
         self.target_throttle = 0  
         self.lower_lim = 0 
@@ -107,7 +107,7 @@ class Resilience:
 
         Usage
         ------------------------------------------------------------------------------------
-        This method only changes throttle value based on encoder count vlaue. 
+        This method only changes throttle value based on encoder count value. 
         Also stop motor based on counter value, e2s emergency signal, emergency switch signal
         """ 
 

@@ -229,16 +229,16 @@ class Actuator:
         """
         throttle: throttle value you want to change to
         -------------------------------------------------
-        this method changes current duty to new duty culcurated with the throttle argument you give.
+        this method changes current duty to new duty calcurated with the throttle argument you give.
         [note] 0 <= throttle <= 100.
         """
        
         if self.throttle_a0 == None:
-            print("throttle_a0 doen't have a value. execute test_esc() and set_throttle(), and set the value of thottle_a0.")
+            print("throttle_a0 doesn't have a value. execute test_esc() and set_throttle(), and set the value of throttle_a0.")
             self.end()
             sys.exit()
         elif self.throttle_a1 == None:
-            print("throttle_a1 doen't have a value. execute test_esc() and set_throttle(), and set the value of thottle_a0.")
+            print("throttle_a1 doesn't have a value. execute test_esc() and set_throttle(), and set the value of throttle_a0.")
             self.end()
             sys.exit()
         
@@ -250,7 +250,7 @@ class Actuator:
         print("duty:", duty)
         # while motion flag is True, keep motor on 
         self.esc.ChangeDutyCycle(duty)
-        sleep(5)
+        sleep(1)
         # self.stop_esc(duty)
 
     def new_duty(self, duty:float):
