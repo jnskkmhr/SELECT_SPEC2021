@@ -27,7 +27,11 @@ while True:
   try:
       top_sw_state    = e2s_.read_top()
       bottom_sw_state = e2s_.read_bottom()
-      print("top:",top_sw_state, "bottom",bottom_sw_state)
+      if top_sw_state == 1:
+        print("top:",top_sw_state)
+      if bottom_sw_state == 1:
+        print("bottom",bottom_sw_state)
+
       sleep(1)
   except KeyboardInterrupt:
      print("Operation was killed!")
